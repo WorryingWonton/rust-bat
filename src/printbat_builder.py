@@ -1,5 +1,6 @@
 import bat_scraper_2
 import sys
+import re
 
 def run_all(sec_name):
     master_tup = bat_scraper_2.get_pids_names(sec_name)
@@ -21,19 +22,25 @@ def build_input(pid):
     invocation_list = []
     #List of tuples containing the expected results for the pid.
     expectation_list = []
-    for row in responses:
-        invocation_list.append(bat_scraper_2.get_invocation(row).to_rust_code())
-        expectation_list.append(bat_scraper_2.get_expected(row).to_rust_code())
-    #List of generic Java types in the invocation for the CodingBat problem.
     invocation_types = bat_scraper_2.get_invocation_types(bat)
-    final_invocation_list = []
-    final_expectation_list = []
-    for row in invocation_list:
-        final_invocation_list.append(inv_vec_handler(invocation_types, row))
-    for row in expectation_list:
-        final_expectation_list.append(exp_vec_handler(type, row))
-    return (fn_name, final_invocation_list, final_expectation_list)
+    for row in responses:
+         invocation_list.append(bat_scraper_2.get_invocation(row))
+         expectation_list.append(bat_scraper_2.get_expected(row))
+    return (fn_name, invocation_list, expectation_list)
 
+
+#     for row in responses:
+#         invocation_list.append(bat_scraper_2.get_invocation(row).to_rust_code())
+#         expectation_list.append(bat_scraper_2.get_expected(row).to_rust_code())
+#     #List of generic Java types in the invocation for the CodingBat problem.
+#     final_invocation_list = []
+#     final_expectation_list = []
+#     for row in invocation_list:
+#         final_invocation_list.append(inv_vec_handler(invocation_types, row))
+#     for row in expectation_list:
+#         final_expectation_list.append(exp_vec_handler(type, row))
+#     return (fn_name, final_invocation_list, final_expectation_list)
+#
 def inv_vec_handler(inv_type_list, row):
     row_as_list = row[1:-1].split(', ')
     vec_dict = {'int[]': 'Vec::<i32>::new()', 'boolean[]': 'Vec::<bool>::new()', 'char[]': 'Vec::<char>::new()', 'float[]': 'Vec::<f32>::new()', 'String[]': 'Vec::<&str>::new()'}
@@ -48,13 +55,13 @@ def inv_vec_handler(inv_type_list, row):
             row_string += f'{row_as_list[index]}'
         index += 1
     return '(' + row_string + ')'
-
-def exp_vec_handler(type, row):
-    vec_dict = {'int[]': 'Vec::<i32>::new()', 'boolean[]': 'Vec::<bool>::new()', 'char[]': 'Vec::<char>::new()', 'float[]': 'Vec::<f32>::new()', 'String[]': 'Vec::<&str>::new()'}
-    if row == 'Vec::<>::new()':
-        return vec_dict[type]
-    else:
-        return row
+#
+# def exp_vec_handler(type, row):
+#     vec_dict = {'int[]': 'Vec::<i32>::new()', 'boolean[]': 'Vec::<bool>::new()', 'char[]': 'Vec::<char>::new()', 'float[]': 'Vec::<f32>::new()', 'String[]': 'Vec::<&str>::new()'}
+#     if row == 'Vec::<>::new()':
+#         return vec_dict[type]
+#     else:
+#         return row
 
 def build_string(input_tuple):
     master_string = f'printbat!({input_tuple[0]},'
@@ -68,7 +75,10 @@ def build_string(input_tuple):
             master_string += f'\n    {input_tuple[1][index][1:-1]} => {input_tuple[2][index]});'
             return master_string + '\n'
 
-run_all(sys.argv[1])
+# run_all(sys.argv[1])
 
-# print(build_string(build_input('p109660')))
+bad_test = build_input('p109660')[1][3]
+
+print(bad_test)
+
 
