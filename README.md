@@ -1,6 +1,6 @@
 # rust-bat
 
-## Running
+## Running Rust Bats
 
 ```
 cargo run warmup-1 sleepIn true false
@@ -16,9 +16,22 @@ cargo run sumHeighs2 sumHeights2 [5, 3, 6, 7, 2], 0, 4
 
 ```
 
-## Testing
+## Testing Rust Bats
 
 ```
 cargo test
 ```
 
+## Generating Rust Bat Tests
+
+Use the `printbat_builder.py` script to download the Coding Bat problems for a section and automatically generate unit tests 
+based off of the tests Coding Bat exposes.
+
+Example:
+
+```
+# Generate tests for an entire section
+python src/printbat_builder.py Array-3
+# Generate tests for just one problem
+python src/printbat_builder.py problem p109660
+```

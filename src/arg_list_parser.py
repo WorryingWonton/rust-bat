@@ -64,6 +64,7 @@ class BooleanLiteral(Expression):
 class ArrayLiteral(Expression):
     def __init__(self, arrayx):
         self.arrayx = arrayx
+        self.item_type = None
 
     def __str__(self):
         string = 'ArrayLiteral('
@@ -88,7 +89,7 @@ class ArrayLiteral(Expression):
                     string += elem.to_rust_code()
             return string + ']'
         else:
-            return 'Vec::<>::new()'
+            return f'Vec::<{self.item_type}>::new()'
 
 class TupleLiteral(Expression):
     def __init__(self, tuplex):
