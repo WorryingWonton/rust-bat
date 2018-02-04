@@ -74,7 +74,10 @@ def build_string(input_tuple):
             master_string += ');'
             return master_string + '\n'
 
-run_all(sys.argv[1])
-
-
+if sys.argv[1].lower() == 'section':
+    run_all(sys.argv[2])
+elif sys.argv[1].lower() == 'problem':
+    print(build_string(build_input(sys.argv[2].lower())))
+else:
+    print(f'ERROR: Enter \'Section\' followed by a section name (e.g. \'Array-1\') or \'Problem\' followed by a problem number (e.g. \'p159531\').\nYou entered \'{sys.argv[1]}\', which is neither a section nor a problem.')
 
