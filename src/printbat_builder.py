@@ -1,6 +1,6 @@
 import bat_scraper_2
+from arg_list_parser import ArrayLiteral
 import sys
-import re
 
 def run_all(sec_name):
     master_tup = bat_scraper_2.get_pids_names(sec_name)
@@ -22,63 +22,59 @@ def build_input(pid):
     invocation_list = []
     #List of tuples containing the expected results for the pid.
     expectation_list = []
-    invocation_types = bat_scraper_2.get_invocation_types(bat)
     for row in responses:
          invocation_list.append(bat_scraper_2.get_invocation(row))
          expectation_list.append(bat_scraper_2.get_expected(row))
-    return (fn_name, invocation_list, expectation_list)
+    #List of generic Java types in the invocation for the CodingBat problem.
+    invocation_types = bat_scraper_2.get_invocation_types(bat)
+    final_invocation_list = []
+    final_expectation_list = []
+    for row in invocation_list:
+        final_invocation_list.append(fill_type_params(invocation_types, row))
+    for row in expectation_list:
+        final_expectation_list.append(fill_type_param(type, row))
+    return (fn_name, final_invocation_list, final_expectation_list)
 
+def fill_type_params(inv_type_list, args_tuple):
+    new_args = []
+    for i, arg in enumerate((args_tuple.tuplex)):
+        new_args.append(fill_type_param(inv_type_list[i], args_tuple.tuplex[i]))
+    return new_args
 
-#     for row in responses:
-#         invocation_list.append(bat_scraper_2.get_invocation(row).to_rust_code())
-#         expectation_list.append(bat_scraper_2.get_expected(row).to_rust_code())
-#     #List of generic Java types in the invocation for the CodingBat problem.
-#     final_invocation_list = []
-#     final_expectation_list = []
-#     for row in invocation_list:
-#         final_invocation_list.append(inv_vec_handler(invocation_types, row))
-#     for row in expectation_list:
-#         final_expectation_list.append(exp_vec_handler(type, row))
-#     return (fn_name, final_invocation_list, final_expectation_list)
-#
-def inv_vec_handler(inv_type_list, row):
-    row_as_list = row[1:-1].split(', ')
-    vec_dict = {'int[]': 'Vec::<i32>::new()', 'boolean[]': 'Vec::<bool>::new()', 'char[]': 'Vec::<char>::new()', 'float[]': 'Vec::<f32>::new()', 'String[]': 'Vec::<&str>::new()'}
-    index = 0
-    row_string = ''
-    while index < len(row_as_list):
-        if row_as_list[index] == 'Vec::<>::new()':
-            row_as_list[index] = vec_dict[inv_type_list[index]]
-        if index < len(row_as_list) - 1:
-            row_string += f'{row_as_list[index]}, '
-        else:
-            row_string += f'{row_as_list[index]}'
-        index += 1
-    return '(' + row_string + ')'
-#
-# def exp_vec_handler(type, row):
-#     vec_dict = {'int[]': 'Vec::<i32>::new()', 'boolean[]': 'Vec::<bool>::new()', 'char[]': 'Vec::<char>::new()', 'float[]': 'Vec::<f32>::new()', 'String[]': 'Vec::<&str>::new()'}
-#     if row == 'Vec::<>::new()':
-#         return vec_dict[type]
-#     else:
-#         return row
+def fill_type_param(type_param, generic_type):
+    java_rust_types = {
+        'int[]': 'i32',
+        'List<Integer>': 'i32',
+        'List<String>': '&str',
+        'boolean[]': 'bool',
+        'char[]': 'char',
+        'float[]': 'f32',
+        'String[]': '&str'
+    }
+    if isinstance(generic_type, ArrayLiteral):
+        array_literal = generic_type
+        if len(array_literal.arrayx) == 0:
+            array_literal.item_type = java_rust_types[type_param]
+    return generic_type
 
 def build_string(input_tuple):
     master_string = f'printbat!({input_tuple[0]},'
     index = 0
-
     while index < len(input_tuple[1]):
+        #Splitting the formation of master_string onto several lines only returns the expectation.
+        arg_list = input_tuple[1][index]
+        # master_string += f'\n   '
+        master_string += f'\n   ' + ', '. join(map(lambda inv: inv.to_rust_code(), arg_list)) + ' => ' + input_tuple[2][index].to_rust_code()
+        # master_string += ' => '
+        # master_string = input_tuple[2][index].to_rust_code()
         if index < len(input_tuple[1]) - 1:
-            master_string += f'\n    {input_tuple[1][index][1:-1]} => {input_tuple[2][index]},'
+            master_string += ','
             index += 1
         else:
-            master_string += f'\n    {input_tuple[1][index][1:-1]} => {input_tuple[2][index]});'
+            master_string += ');'
             return master_string + '\n'
 
-# run_all(sys.argv[1])
+run_all(sys.argv[1])
 
-bad_test = build_input('p109660')[1][3]
-
-print(bad_test)
 
 

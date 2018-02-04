@@ -4,13 +4,15 @@ from bs4 import BeautifulSoup
 import arg_list_parser
 
 def get_pids_names(sec_name):
-    page = requests.get(f'http://codingbat.com/java/{sec_name}').text
-    pids = re.findall('/prob/(p[0-9]*)', page)
-    names = re.findall('/prob/p[0-9]*\'>([^<]*)', page)
+    response = requests.get(f'http://codingbat.com/java/{sec_name}')
+    response.raise_for_status()
+    pids = re.findall('/prob/(p[0-9]*)', response.text)
+    names = re.findall('/prob/p[0-9]*\'>([^<]*)', response.text)
     return (pids, names)
 
 def get_bat(pid):
-    response = requests.post(f'http://codingbat.com/prob/{pid}')
+    response = requests.get(f'http://codingbat.com/prob/{pid}')
+    response.raise_for_status()
     return BeautifulSoup(response.text, 'html.parser').select('#ace_div')[0].text
 
 def get_return_type(text):
@@ -54,7 +56,7 @@ def generate_code(text, return_statement):
 
 def submit_code(code, pid):
     response = requests.post('http://codingbat.com/run', data={"id": pid, 'code':code})
-    # print(response.text)
+    response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
     rows = soup.select('div table tr')
     row_list = []
