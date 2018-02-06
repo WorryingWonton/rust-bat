@@ -30,9 +30,6 @@ def get_invocation_types(text):
                 break
     return local_type_list
 
-#Iterate through inner, generate comma separated list of types.
-#If any types are array based,
-
 def generate_return(type):
     generic_return_dict = {'int': 'return 0;',
                          'String': 'return "hello";',
@@ -48,7 +45,8 @@ def generate_return(type):
                          'boolean[]': 'boolean[] axv = {true}; return axv;',
                          'float': 'bnm = 2.0; return bnm;',
                          'float[]': 'float[] bcy = {2.0}; return bcy;',
-                         'List': 'return null;'}
+                         'List': 'return null;',
+                           }
     return generic_return_dict[type]
 
 def generate_code(text, return_statement):

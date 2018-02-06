@@ -6,7 +6,7 @@ def run_all(sec_name):
     master_tup = bat_scraper_2.get_pids_names(sec_name)
     for prob in master_tup[0]:
         print(build_string(build_input(prob)))
-        print('println!();\n')
+        # print('println!();\n')
 
 #Will refactor build_input, inv_vec_handler and exp_vec_handler.
 def build_input(pid):
@@ -49,7 +49,7 @@ def fill_type_param(type_param, generic_type):
         'boolean[]': 'bool',
         'char[]': 'char',
         'float[]': 'f32',
-        'String[]': '&str'
+        'String[]': '&str',
     }
     if isinstance(generic_type, ArrayLiteral):
         array_literal = generic_type
@@ -63,10 +63,11 @@ def build_string(input_tuple):
     while index < len(input_tuple[1]):
         #Splitting the formation of master_string onto several lines only returns the expectation.
         arg_list = input_tuple[1][index]
-        # master_string += f'\n   '
-        master_string += f'\n   ' + ', '. join(map(lambda inv: inv.to_rust_code(), arg_list)) + ' => ' + input_tuple[2][index].to_rust_code()
-        # master_string += ' => '
-        # master_string = input_tuple[2][index].to_rust_code()
+        master_string += f'\n   '
+        # master_string += f'\n   ' + ', '. join(map(lambda inv: inv.to_rust_code(), arg_list)) + ' => ' + input_tuple[2][index].to_rust_code()
+        master_string += ', '. join(map(lambda inv: inv.to_rust_code(), arg_list))
+        master_string += ' => '
+        master_string += input_tuple[2][index].to_rust_code()
         if index < len(input_tuple[1]) - 1:
             master_string += ','
             index += 1
