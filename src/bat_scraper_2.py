@@ -4,13 +4,15 @@ from bs4 import BeautifulSoup
 import arg_list_parser
 
 def get_pids_names(sec_name):
-    page = requests.get(f'http://codingbat.com/java/{sec_name}').text
-    pids = re.findall('/prob/(p[0-9]*)', page)
-    names = re.findall('/prob/p[0-9]*\'>([^<]*)', page)
+    response = requests.get(f'http://codingbat.com/java/{sec_name}')
+    response.raise_for_status()
+    pids = re.findall('/prob/(p[0-9]*)', response.text)
+    names = re.findall('/prob/p[0-9]*\'>([^<]*)', response.text)
     return (pids, names)
 
 def get_bat(pid):
-    response = requests.post(f'http://codingbat.com/prob/{pid}')
+    response = requests.get(f'http://codingbat.com/prob/{pid}')
+    response.raise_for_status()
     return BeautifulSoup(response.text, 'html.parser').select('#ace_div')[0].text
 
 def get_return_type(text):
@@ -28,25 +30,23 @@ def get_invocation_types(text):
                 break
     return local_type_list
 
-#Iterate through inner, generate comma separated list of types.
-#If any types are array based,
-
 def generate_return(type):
     generic_return_dict = {'int': 'return 0;',
-                         'String': 'return "hello";',
-                         'String[]': 'return new String[]{};',
-                         'int[]': 'return new int[]{};',
-                         'boolean': 'return true;',
-                         'List<Integer>': 'return new ArrayList<Integer>();',
-                         'List<String>': 'return new ArrayList<String>();',
-                         'List<char>': 'return new ArrayList<char>();',
-                         'List<boolean>': 'return new ArrayList<boolean>();',
-                         'char': 'char bbc = \'a\'; return bbc;',
-                         'char[]': 'char[] alm = {\'a\'}; return alm;',
-                         'boolean[]': 'boolean[] axv = {true}; return axv;',
-                         'float': 'bnm = 2.0; return bnm;',
-                         'float[]': 'float[] bcy = {2.0}; return bcy;',
-                         'List': 'return null;'}
+                           'String': 'return "hello";',
+                           'String[]': 'return new String[]{};',
+                           'int[]': 'return new int[]{};',
+                           'boolean': 'return true;',
+                           'List<Integer>': 'return new ArrayList<Integer>();',
+                           'List<String>': 'return new ArrayList<String>();',
+                           'List<char>': 'return new ArrayList<char>();',
+                           'List<boolean>': 'return new ArrayList<boolean>();',
+                           'char': 'char bbc = \'a\'; return bbc;',
+                           'char[]': 'char[] alm = {\'a\'}; return alm;',
+                           'boolean[]': 'boolean[] axv = {true}; return axv;',
+                           'float': 'bnm = 2.0; return bnm;',
+                           'float[]': 'float[] bcy = {2.0}; return bcy;',
+                           'List': 'return null;',
+                           }
     return generic_return_dict[type]
 
 def generate_code(text, return_statement):
@@ -54,7 +54,7 @@ def generate_code(text, return_statement):
 
 def submit_code(code, pid):
     response = requests.post('http://codingbat.com/run', data={"id": pid, 'code':code})
-    # print(response.text)
+    response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
     rows = soup.select('div table tr')
     row_list = []
@@ -76,4 +76,3 @@ def get_fn_name(row):
 def get_invocation(row):
     inv = re.search('(\(.*\))', row).group(1)
     return arg_list_parser.parse_literals(inv, 0)[0]
-
