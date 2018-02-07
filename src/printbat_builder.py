@@ -6,9 +6,8 @@ def run_all(sec_name):
     master_tup = bat_scraper_2.get_pids_names(sec_name)
     for prob in master_tup[0]:
         print(build_string(build_input(prob)))
-        # print('println!();\n')
+        print('println!();\n')
 
-#Will refactor build_input, inv_vec_handler and exp_vec_handler.
 def build_input(pid):
     #bat, type and signature are used to build the code variable, which in turn will be submitted to CodingBat to get the results table.
     bat = bat_scraper_2.get_bat(pid)
@@ -61,10 +60,8 @@ def build_string(input_tuple):
     master_string = f'printbat!({input_tuple[0]},'
     index = 0
     while index < len(input_tuple[1]):
-        #Splitting the formation of master_string onto several lines only returns the expectation.
         arg_list = input_tuple[1][index]
         master_string += f'\n   '
-        # master_string += f'\n   ' + ', '. join(map(lambda inv: inv.to_rust_code(), arg_list)) + ' => ' + input_tuple[2][index].to_rust_code()
         master_string += ', '. join(map(lambda inv: inv.to_rust_code(), arg_list))
         master_string += ' => '
         master_string += input_tuple[2][index].to_rust_code()
@@ -81,5 +78,5 @@ if __name__ == '__main__':
     elif sys.argv[1].lower() == 'problem':
         print(build_string(build_input(sys.argv[2].lower())))
     else:
-        print(f'ERROR: Enter \'Section\' followed by a section name (e.g. \'Array-1\') or \'Problem\' followed by a problem number (e.g. \'p159531\').\nYou entered \'{sys.argv[1]}\', which is neither a section nor a problem.')
+        print(f'ERROR: Enter \'Section\' followed by a section name (e.g. \'Array-1\') or \'Problem\' followed by a problem number (e.g. \'p159531\').\nYou entered \'{sys.argv[1]}\', which is neither section nor problem.')
 

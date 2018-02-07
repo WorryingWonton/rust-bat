@@ -8,7 +8,7 @@ class Expression(AstElement):
         if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
         else:
-            return
+            return False
 
 class IntegerLiteral(Expression):
     def __init__(self, intx):
