@@ -4,43 +4,37 @@ import sys
 import time
 
 
-def run_all(sec_name=None):
-    if sec_name:
-        prob_tup = bat_scraper_2.get_pids_names(sec_name)
-        for prob in prob_tup[0]:
-            print(build_string(build_input(prob)))
-            print('println!();\n')
-    else:
-        section_list = bat_scraper_2.scrape_sections()
-        start_time = time.gmtime()
-        md_file = open(f'rust_bats_{start_time.tm_mon}_{start_time.tm_mday}_{start_time.tm_year}_{start_time.tm_hour}_{start_time.tm_min}_{start_time.tm_sec}.txt', 'w')
-        clean_file =open(f'clean_rust_bats_{start_time.tm_mon}_{start_time.tm_mday}_{start_time.tm_year}_{start_time.tm_hour}_{start_time.tm_min}_{start_time.tm_sec}.txt', 'w')
-        bat_formatter_string_md = ''
-        bat_formatter_string_clean = ''
-        for section in section_list:
-            prob_tup = bat_scraper_2.get_pids_names(section)
-            pt_index = 0
-            bat_formatter_string_md += f'/// start: {section}'
-            bat_formatter_string_clean += f'/// start: {section}'
-            for pid in prob_tup[0]:
-                problem_info = f'---section: {section} pid: {pid} prob_name: {prob_tup[1][pt_index]}---'
-                prob_string = build_string(build_input(pid))
-                bat_formatter_string_clean += f'{prob_string}\nprintln!();\n'
-                bat_formatter_string_md += f'{problem_info}\n{prob_string}\nprintln!();\n'
-            bat_formatter_string_md += f'end: {section} ///'
-            bat_formatter_string_clean += f'end: {section} ///'
-        md_file.write(bat_formatter_string_md)
-        md_file.close()
-        clean_file.write(bat_formatter_string_clean)
-        clean_file.close()
+def run_section(sec_name):
+    prob_tup = bat_scraper_2.get_pids_names(sec_name)
+    for prob in prob_tup[0]:
+        print(build_string(build_input(prob)))
+        print('println!();\n')
 
 
+def run_all():
+    section_list = bat_scraper_2.scrape_sections()
+    start_time = time.gmtime()
+    md_file = open(f'rust_bats_{start_time.tm_mon}_{start_time.tm_mday}_{start_time.tm_year}_{start_time.tm_hour}_{start_time.tm_min}_{start_time.tm_sec}.txt', 'w')
+    clean_file =open(f'clean_rust_bats_{start_time.tm_mon}_{start_time.tm_mday}_{start_time.tm_year}_{start_time.tm_hour}_{start_time.tm_min}_{start_time.tm_sec}.txt', 'w')
+    bat_formatter_string_md = ''
+    bat_formatter_string_clean = ''
+    for section in section_list:
+        prob_tup = bat_scraper_2.get_pids_names(section)
+        pt_index = 0
+        bat_formatter_string_md += f'/// start: {section}'
+        bat_formatter_string_clean += f'/// start: {section}'
+        for pid in prob_tup[0]:
+            problem_info = f'---section: {section} pid: {pid} prob_name: {prob_tup[1][pt_index]}---'
+            prob_string = build_string(build_input(pid))
+            bat_formatter_string_clean += f'{prob_string}\nprintln!();\n'
+            bat_formatter_string_md += f'{problem_info}\n{prob_string}\nprintln!();\n'
+        bat_formatter_string_md += f'end: {section} ///'
+        bat_formatter_string_clean += f'end: {section} ///'
+    md_file.write(bat_formatter_string_md)
+    md_file.close()
+    clean_file.write(bat_formatter_string_clean)
+    clean_file.close()
 
-
-
-#Spec is to write bat_formatter_string for each pid to a text file.
-            #Each bat_formatter_string entry should have a header containing its URL (this will provide both the pid and section name)
-            #The file should be titled (java_bats_{date_time})
 
 def build_input(pid):
     #bat, type and signature are used to build the code variable, which in turn will be submitted to CodingBat to get the results table.
@@ -110,7 +104,7 @@ if __name__ == '__main__':
     if sys.argv[1].lower() == 'all':
         run_all()
     if sys.argv[1].lower() == 'section':
-        run_all(sys.argv[2])
+        run_section(sys.argv[2])
     elif sys.argv[1].lower() == 'problem':
         print(build_string(build_input(sys.argv[2].lower())))
     else:

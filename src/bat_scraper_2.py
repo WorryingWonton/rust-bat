@@ -82,6 +82,3 @@ def get_fn_name(row):
 def get_invocation(row):
     inv = re.search('(\(.*\))', row).group(1)
     return arg_list_parser.parse_literals(inv, 0)[0]
-
-a = scrape_sections()
-print(a)
