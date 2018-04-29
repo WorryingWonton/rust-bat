@@ -3,6 +3,12 @@ import requests
 from bs4 import BeautifulSoup
 import arg_list_parser
 
+def scrape_sections():
+    response = requests.get('http://codingbat.com/java')
+    response.raise_for_status()
+    sections = re.findall('/java/([A-Z]+[a-z]*-[0-9])', response.text)
+    return sections
+
 def get_pids_names(sec_name):
     response = requests.get(f'http://codingbat.com/java/{sec_name}')
     response.raise_for_status()
@@ -76,3 +82,6 @@ def get_fn_name(row):
 def get_invocation(row):
     inv = re.search('(\(.*\))', row).group(1)
     return arg_list_parser.parse_literals(inv, 0)[0]
+
+a = scrape_sections()
+print(a)
