@@ -25,9 +25,25 @@ def get_return_type(text):
     my_reg = re.search('(public|private|protected) ((static|final) )?([0-9a-zA-Z<>\[\]]*) ', text)
     return my_reg.group(4)
 
+#re.search('(Map<[A-Z]*[a-z]+, [A-Z]*[a-z]+>)', deez_nutz)
+
 def get_invocation_types(text):
     inner = text[text.index('(') + 1:text.index(')')].split(', ')
-    generic_type_list = ['List<Integer>', 'List<String>', 'List<char>', 'List<boolean>', 'boolean', 'String[]', 'float[]', 'String', 'char[]', 'float', 'int[]', 'char', 'int']
+    generic_type_list = ['int',
+                         'List<Integer>',
+                         'List<String>',
+                         'List<char>',
+                         'List<boolean>',
+                         'boolean',
+                         'boolean[]',
+                         'String[]',
+                         'float[]',
+                         'String',
+                         'char[]',
+                         'float',
+                         'int[]',
+                         'char',
+                         'List']
     local_type_list = []
     for parameter in inner:
         for item in generic_type_list:
@@ -38,19 +54,19 @@ def get_invocation_types(text):
 
 def generate_return(type):
     generic_return_dict = {'int': 'return 0;',
-                           'String': 'return "hello";',
+                           'String': 'return null;',
                            'String[]': 'return new String[]{};',
                            'int[]': 'return new int[]{};',
                            'boolean': 'return true;',
                            'List<Integer>': 'return new ArrayList<Integer>();',
                            'List<String>': 'return new ArrayList<String>();',
                            'List<char>': 'return new ArrayList<char>();',
-                           'List<boolean>': 'return new ArrayList<boolean>();',
-                           'char': 'char bbc = \'a\'; return bbc;',
-                           'char[]': 'char[] alm = {\'a\'}; return alm;',
-                           'boolean[]': 'boolean[] axv = {true}; return axv;',
-                           'float': 'bnm = 2.0; return bnm;',
-                           'float[]': 'float[] bcy = {2.0}; return bcy;',
+                           'List<boolean>': 'return null);',
+                           'char': 'return null;',
+                           'char[]': 'return null;',
+                           'boolean[]': 'return null;',
+                           'float': 'return null;;',
+                           'float[]': 'return null;;',
                            'List': 'return null;',
                            }
     return generic_return_dict[type]

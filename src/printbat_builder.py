@@ -10,7 +10,6 @@ def run_section(sec_name):
         print(build_string(build_input(prob)))
         print('println!();\n')
 
-
 def run_all():
     section_list = bat_scraper_2.scrape_sections()
     start_time = time.gmtime()

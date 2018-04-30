@@ -1,4 +1,5 @@
 import re
+import json
 
 class AstElement:
     pass
@@ -119,6 +120,23 @@ class TupleLiteral(Expression):
                 string += elem.to_rust_code()
         return string + ')'
 
+class MapLiteral(Expression):
+    def __init__(self, mapx):
+        self.mapx = mapx
+        if not isinstance(json.loads(mapx[-1]), dict):
+            raise Exception(f'Expected map object as argument, got {mapx}')
+    #Will refactor while loop to be a step-by-2 for loop at some point
+    def to_rust_code(self):
+        string = '{let mut m = BTreeMap::new();\n'
+        val_index = 1
+        key_index = 0
+        while key_index < len(self.mapx) - 2:
+            string += f'm.insert({self.mapx[key_index].to_rust_code()}, {self.mapx[val_index].to_rust_code()});\n'
+            val_index += 2
+            key_index += 2
+        string += 'm\n}'
+        return string
+
 def integer(s, index):
     m = re.match('-?([0-9]+)', s[index:])
     if m:
@@ -200,6 +218,34 @@ def parse_tuple(s, index):
     else:
         return('ERROR: Not a tuple.', index)
 
+def parse_map(s, index):
+    if index < len(s) and s[index] == '{':
+        ccb_index = index + 1
+        parsed_map = []
+        while ccb_index < len(s):
+            (value, new_index) = parse_literals(s, ccb_index)
+            if ccb_index == new_index:
+                map_string = s[index:ccb_index + 1]
+                parsed_map.append(map_string)
+                return (MapLiteral(parsed_map), ccb_index + 1)
+            else:
+                parsed_map.append(value)
+                ccb_index = new_index
+            if s[ccb_index] == ':':
+                ccb_index += 1
+            if s[ccb_index] == ' ':
+                ccb_index += 1
+            if s[ccb_index] == ',':
+                ccb_index += 1
+            if s[ccb_index] == ' ':
+                ccb_index += 1
+            if s[ccb_index] == '}':
+                map_string = s[index:ccb_index + 1]
+                parsed_map.append(map_string)
+                return (MapLiteral(parsed_map), ccb_index + 1)
+    else:
+        return ('ERROR: Not a map object', index)
+
 def parse_scalar_literal(s, index):
     literal_list = [parse_fn(s, index) for parse_fn in [integer, floating_point, character, string, boolean]]
     largest_index = 0
@@ -214,11 +260,23 @@ def parse_literals(s, index):
     (value, new_index) = parse_scalar_literal(s, index)
     (array_value, new_array_index) = array(s, index)
     (tuple_value, new_tuple_index) = parse_tuple(s, index)
-    if new_array_index > max(new_index, new_tuple_index):
+    (map_value, new_map_index) = parse_map(s, index)
+    if new_array_index > max(new_index, new_tuple_index, new_map_index):
         return (array_value, new_array_index)
-    elif new_tuple_index > max(new_index, new_array_index):
+    elif new_tuple_index > max(new_index, new_array_index, new_map_index):
         return (tuple_value, new_tuple_index)
-    elif new_index > max(new_array_index, new_tuple_index):
+    elif new_index > max(new_array_index, new_tuple_index, new_map_index):
         return (value, new_index)
+    elif new_map_index > max(new_index, new_array_index, new_tuple_index):
+        return (map_value, new_map_index)
     else:
         return (s, index)
+
+test = parse_map('{"blue": 2, "green": {"Hello": {"Dave": [1, 2, 3]}}}', 0)
+print(test[0].to_rust_code())
+
+#Dictionaries are always a single key paired to a single value.  The value can contain multiple elements (like a list or tuple), but is always singular.
+#In parsed map, elements 0, 2, 4, 6, 8... are keys.  Elements 1, 3, 5, 7, 9... are values.  If index % 2 == 0, parsed_map[index] is a key, else it's a value.  There will always be an even number of elements in parsed_map.
+#Keys are separated from their respective values with ': '
+#Keys are separated from each other with a ', '
+#map_string
