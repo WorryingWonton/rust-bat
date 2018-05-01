@@ -185,7 +185,7 @@ class Test_to_rust_code(unittest.TestCase):
 
     def test_complex(self):
         self.assertEqual('()', arg_list_parser.parse_literals('()', 0)[0].to_rust_code())
-        self.assertEqual('vec![]', arg_list_parser.parse_literals('[]', 0)[0].to_rust_code())
+        self.assertEqual('Vec::<None>::new()', arg_list_parser.parse_literals('[]', 0)[0].to_rust_code())
         self.assertEqual('(1, 2, 3)', arg_list_parser.parse_literals('(1, 2, 3)', 0)[0].to_rust_code())
         self.assertEqual('vec![1, 2, 3]', arg_list_parser.parse_literals('[1, 2, 3]', 0)[0].to_rust_code())
         self.assertEqual('vec![(1, 2, 3), vec![1, 2, "Hello"], 2, 3, 4, \'a\']', arg_list_parser.parse_literals('[(1, 2, 3), [1, 2, "Hello"], 2, 3, 4, \'a\']', 0)[0].to_rust_code())

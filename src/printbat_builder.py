@@ -3,7 +3,6 @@ from arg_list_parser import ArrayLiteral
 import sys
 import time
 
-
 def run_section(sec_name):
     prob_tup = bat_scraper_2.get_pids_names(sec_name)
     for prob in prob_tup[0]:

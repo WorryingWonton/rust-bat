@@ -22,28 +22,34 @@ def get_bat(pid):
     return BeautifulSoup(response.text, 'html.parser').select('#ace_div')[0].text
 
 def get_return_type(text):
-    my_reg = re.search('(public|private|protected) ((static|final) )?([0-9a-zA-Z<>\[\]]*) ', text)
-    return my_reg.group(4)
+    my_reg = re.search('(public|private|protected) ((static|final) )?([0-9a-zA-Z<>\[\]]*)', text)
+    if my_reg:
+        return my_reg.group(4)
+    else:
+        return 'UnhandledType'
 
 #re.search('(Map<[A-Z]*[a-z]+, [A-Z]*[a-z]+>)', deez_nutz)
 
 def get_invocation_types(text):
     inner = text[text.index('(') + 1:text.index(')')].split(', ')
-    generic_type_list = ['int',
+    #Do NOT rearrange the items in generic_type_list
+    generic_type_list = [
                          'List<Integer>',
                          'List<String>',
                          'List<char>',
                          'List<boolean>',
-                         'boolean',
+                         'int[]',
                          'boolean[]',
                          'String[]',
                          'float[]',
                          'String',
                          'char[]',
+                         'boolean',
                          'float',
-                         'int[]',
+                         'int',
                          'char',
-                         'List']
+                         'List',
+                         'UnhandledType']
     local_type_list = []
     for parameter in inner:
         for item in generic_type_list:
@@ -68,8 +74,12 @@ def generate_return(type):
                            'float': 'return null;;',
                            'float[]': 'return null;;',
                            'List': 'return null;',
+                           'UnhandledType': 'return null;'
                            }
-    return generic_return_dict[type]
+    if type in generic_return_dict:
+        return generic_return_dict[type]
+    else:
+        return 'return null;'
 
 def generate_code(text, return_statement):
     return text[0:text.index('}')] + return_statement + '}'
