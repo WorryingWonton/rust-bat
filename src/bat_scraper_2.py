@@ -2,6 +2,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 import arg_list_parser
+import logging
 
 def scrape_sections():
     response = requests.get('http://codingbat.com/java')
@@ -22,13 +23,11 @@ def get_bat(pid):
     return BeautifulSoup(response.text, 'html.parser').select('#ace_div')[0].text
 
 def get_return_type(text):
-    my_reg = re.search('(public|private|protected) ((static|final) )?([0-9a-zA-Z<>\[\]]*)', text)
+    my_reg = re.search('(public|private|protected)? ?((static|final) )?([0-9a-zA-Z<>\[\]]*)', text)
     if my_reg:
         return my_reg.group(4)
     else:
-        return 'UnhandledType'
-
-#re.search('(Map<[A-Z]*[a-z]+, [A-Z]*[a-z]+>)', deez_nutz)
+        return None
 
 def get_invocation_types(text):
     inner = text[text.index('(') + 1:text.index(')')].split(', ')
@@ -48,8 +47,7 @@ def get_invocation_types(text):
                          'float',
                          'int',
                          'char',
-                         'List',
-                         'UnhandledType']
+                         'List',]
     local_type_list = []
     for parameter in inner:
         for item in generic_type_list:
@@ -61,24 +59,22 @@ def get_invocation_types(text):
 def generate_return(type):
     generic_return_dict = {'int': 'return 0;',
                            'String': 'return null;',
-                           'String[]': 'return new String[]{};',
-                           'int[]': 'return new int[]{};',
+                           'String[]': 'return null;',
+                           'int[]': 'return null;',
                            'boolean': 'return true;',
-                           'List<Integer>': 'return new ArrayList<Integer>();',
-                           'List<String>': 'return new ArrayList<String>();',
-                           'List<char>': 'return new ArrayList<char>();',
-                           'List<boolean>': 'return null);',
-                           'char': 'return null;',
+                           'List<Integer>': 'return null;',
+                           'List<String>': 'return null;',
+                           'char': 'return \'a\';',
                            'char[]': 'return null;',
                            'boolean[]': 'return null;',
-                           'float': 'return null;;',
-                           'float[]': 'return null;;',
+                           'float': 'return 0.0;',
+                           'float[]': 'return null;',
                            'List': 'return null;',
-                           'UnhandledType': 'return null;'
                            }
     if type in generic_return_dict:
         return generic_return_dict[type]
     else:
+        logging.warning(f'Unknown Type: {type}')
         return 'return null;'
 
 def generate_code(text, return_statement):

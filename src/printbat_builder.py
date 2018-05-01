@@ -2,7 +2,9 @@ import bat_scraper_2
 from arg_list_parser import ArrayLiteral
 import sys
 import time
+import logging
 
+logging.basicConfig(level=logging.INFO)
 def run_section(sec_name):
     prob_tup = bat_scraper_2.get_pids_names(sec_name)
     for prob in prob_tup[0]:
@@ -42,6 +44,9 @@ def build_input(pid):
     code = bat_scraper_2.generate_code(bat, return_statement)
     #Response is a list of strings, containing the rows from the results table on the CodingBat website.
     responses = bat_scraper_2.submit_code(code, pid)
+    if not responses:
+        logging.error(f'{code}')
+        raise Exception(f'No responses for {pid}')
     fn_name = bat_scraper_2.get_fn_name(responses[0])
     #List of tuples containing the various ivocations for the pid.
     invocation_list = []

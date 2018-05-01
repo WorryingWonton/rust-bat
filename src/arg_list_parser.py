@@ -271,12 +271,3 @@ def parse_literals(s, index):
         return (map_value, new_map_index)
     else:
         return (s, index)
-
-# test = parse_map('{"blue": 2, "green": {"Hello": {"Dave": [1, 2, 3]}}}', 0)
-# print(test[0].to_rust_code())
-
-#Dictionaries are always a single key paired to a single value.  The value can contain multiple elements (like a list or tuple), but is always singular.
-#In parsed map, elements 0, 2, 4, 6, 8... are keys.  Elements 1, 3, 5, 7, 9... are values.  If index % 2 == 0, parsed_map[index] is a key, else it's a value.  There will always be an even number of elements in parsed_map.
-#Keys are separated from their respective values with ': '
-#Keys are separated from each other with a ', '
-#map_string
