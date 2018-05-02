@@ -35,7 +35,6 @@ def run_all():
     clean_file.write(bat_formatter_string_clean)
     clean_file.close()
 
-
 def build_input(pid):
     #bat, type and signature are used to build the code variable, which in turn will be submitted to CodingBat to get the results table.
     bat = bat_scraper_2.get_bat(pid)
@@ -48,7 +47,7 @@ def build_input(pid):
         logging.error(f'{code}')
         raise Exception(f'No responses for {pid}')
     fn_name = bat_scraper_2.get_fn_name(responses[0])
-    #List of tuples containing the various ivocations for the pid.
+    #List of tuples containing the various invocations for the pid.
     invocation_list = []
     #List of tuples containing the expected results for the pid.
     expectation_list = []
@@ -106,10 +105,10 @@ def build_string(input_tuple):
 if __name__ == '__main__':
     if sys.argv[1].lower() == 'all':
         run_all()
-    if sys.argv[1].lower() == 'section':
+    elif sys.argv[1].lower() == 'section':
         run_section(sys.argv[2])
     elif sys.argv[1].lower() == 'problem':
         print(build_string(build_input(sys.argv[2].lower())))
     else:
-        print(f'ERROR: Enter \'Section\' followed by a section name (e.g. \'Array-1\') or \'Problem\' followed by a problem number (e.g. \'p159531\').\nYou entered \'{sys.argv[1]}\', which is neither section nor problem.')
+        print(f'ERROR: Enter \'Section\' followed by a section name (e.g. \'Array-1\') or \'Problem\' followed by a problem number (e.g. \'p159531\'), or \'all\' to scrape all JavaBats (this will take some time).\nYou entered \'{sys.argv[1]}\', which is neither a section nor a problem, nor \'all\'.')
 
